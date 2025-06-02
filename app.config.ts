@@ -12,36 +12,35 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/images/splash.png',
     resizeMode: 'contain',
-    backgroundColor: '#003366'
+    backgroundColor: '#003366',
   },
   updates: {
-    fallbackToCacheTimeout: 0
+    fallbackToCacheTimeout: 0,
   },
-  assetBundlePatterns: [
-    '**/*'
-  ],
+  assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.nu.enyupedia'
+    bundleIdentifier: 'com.nu.enyupedia',
   },
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
-      backgroundColor: '#003366'
+      backgroundColor: '#003366',
     },
-    package: 'com.nu.enyupedia'
+    package: 'com.nu.enyupedia',
   },
   web: {
     bundler: 'metro',
     output: 'server',
-    favicon: './assets/images/favicon.png'
+    favicon: './assets/images/favicon.png',
   },
   extra: {
-    SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     eas: {
-      projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID
-    }
+      projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID,
+    },
+    BACKEND_URL: 'http://0.0.0.0:8000',
   },
-  plugins: ['expo-router']
+  plugins: ['expo-router'],
 });
+
+export const BACKEND_URL = 'http://0.0.0.0:8000';

@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
-import { MessageSquare, BookOpen, Settings } from 'lucide-react-native';
-import { View, StyleSheet } from 'react-native';
+import { MessageSquare, BookOpen } from 'lucide-react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -12,14 +12,21 @@ export default function TabLayout() {
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
         headerShown: false,
+        tabBarIconStyle: styles.tabBarIcon,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ color, size }) => (
-            <MessageSquare size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={styles.iconContainer}>
+              <MessageSquare
+                size={22}
+                color={color}
+                strokeWidth={focused ? 2.5 : 2}
+              />
+            </View>
           ),
         }}
       />
@@ -27,17 +34,14 @@ export default function TabLayout() {
         name="about"
         options={{
           title: 'About',
-          tabBarIcon: ({ color, size }) => (
-            <BookOpen size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={styles.iconContainer}>
+              <BookOpen
+                size={22}
+                color={color}
+                strokeWidth={focused ? 2.5 : 2}
+              />
+            </View>
           ),
         }}
       />
@@ -50,12 +54,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e1e1e1',
-    height: 60,
-    paddingBottom: 5,
-    paddingTop: 5,
+    height: Platform.OS === 'ios' ? 80 : 60,
+    paddingBottom: Platform.OS === 'ios' ? 25 : 5,
+    paddingTop: 10,
   },
   tabBarLabel: {
     fontFamily: 'Inter-Medium',
     fontSize: 12,
+    marginBottom: Platform.OS === 'ios' ? 5 : 0,
+  },
+  tabBarIcon: {
+    marginTop: 3,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

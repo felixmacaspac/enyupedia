@@ -1,59 +1,94 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
-import { Merriweather_400Regular, Merriweather_700Bold } from '@expo-google-fonts/merriweather';
-import { SplashScreen } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
-import { AIProvider } from '@/context/AIContext';
+import { Tabs } from 'expo-router';
+import { MessageSquare, BookOpen, Info } from 'lucide-react-native';
+import { View, StyleSheet, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
+import Colors from '@/constants/Colors';
 
-// Prevent splash screen from auto-hiding
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  useFrameworkReady();
-
-  const [fontsLoaded, fontError] = useFonts({
-    'Inter-Regular': Inter_400Regular,
-    'Inter-Medium': Inter_500Medium,
-    'Inter-Bold': Inter_700Bold,
-    'Merriweather-Regular': Merriweather_400Regular,
-    'Merriweather-Bold': Merriweather_700Bold,
-  });
-
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      // Hide splash screen once fonts are loaded
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
-
-  // Return null to keep splash screen visible while fonts load
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
-
+export default function TabLayout() {
   return (
-    <AIProvider>
-      <View style={styles.container}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: '#f7f7f7' }
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </View>
-    </AIProvider>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.secondary,
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabBarLabel,
+        headerShown: false,
+        tabBarBackground: () =>
+          Platform.OS === 'ios' ? (
+            <BlurView
+              tint="light"
+              intensity={95}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: 'rgba(255, 255, 255, 0.95)' },
+              ]}
+            />
+          ),
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Chat',
+          tabBarIcon: ({ color, size, focused }) => (
+            <View
+              style={[styles.iconWrapper, focused && styles.activeIconWrapper]}
+            >
+              <MessageSquare
+                size={size - 2}
+                color={color}
+                strokeWidth={focused ? 2.5 : 2}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: 'About',
+          tabBarIcon: ({ color, size, focused }) => (
+            <View
+              style={[styles.iconWrapper, focused && styles.activeIconWrapper]}
+            >
+              <BookOpen
+                size={size - 2}
+                color={color}
+                strokeWidth={focused ? 2.5 : 2}
+              />
+            </View>
+          ),
+        }}
+      />
+    </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  tabBar: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    height: Platform.OS === 'ios' ? 88 : 64,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+    paddingTop: 8,
+    position: 'absolute',
+    elevation: 0,
+  },
+  tabBarLabel: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  iconWrapper: {
+    padding: 8,
+    borderRadius: 12,
+    marginBottom: 2,
+  },
+  activeIconWrapper: {
+    backgroundColor: 'rgba(0, 112, 240, 0.1)',
   },
 });
