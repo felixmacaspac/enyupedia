@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
-import { MessageSquare, BookOpen } from 'lucide-react-native';
+import { MessageSquare, BookOpen, Info } from 'lucide-react-native';
 import { View, StyleSheet, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
 import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -12,7 +13,21 @@ export default function TabLayout() {
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
         headerShown: false,
-        tabBarIconStyle: styles.tabBarIcon,
+        tabBarBackground: () =>
+          Platform.OS === 'ios' ? (
+            <BlurView
+              tint="light"
+              intensity={95}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: 'rgba(255, 255, 255, 0.95)' },
+              ]}
+            />
+          ),
       }}
     >
       <Tabs.Screen
@@ -20,9 +35,11 @@ export default function TabLayout() {
         options={{
           title: 'Chat',
           tabBarIcon: ({ color, size, focused }) => (
-            <View style={styles.iconContainer}>
+            <View
+              style={[styles.iconWrapper, focused && styles.activeIconWrapper]}
+            >
               <MessageSquare
-                size={22}
+                size={size - 2}
                 color={color}
                 strokeWidth={focused ? 2.5 : 2}
               />
@@ -35,9 +52,11 @@ export default function TabLayout() {
         options={{
           title: 'About',
           tabBarIcon: ({ color, size, focused }) => (
-            <View style={styles.iconContainer}>
+            <View
+              style={[styles.iconWrapper, focused && styles.activeIconWrapper]}
+            >
               <BookOpen
-                size={22}
+                size={size - 2}
                 color={color}
                 strokeWidth={focused ? 2.5 : 2}
               />
@@ -51,23 +70,24 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#e1e1e1',
-    height: Platform.OS === 'ios' ? 80 : 60,
-    paddingBottom: Platform.OS === 'ios' ? 25 : 5,
-    paddingTop: 10,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    height: Platform.OS === 'ios' ? 88 : 64,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+    paddingTop: 8,
+    elevation: 0,
   },
   tabBarLabel: {
     fontFamily: 'Inter-Medium',
     fontSize: 12,
-    marginBottom: Platform.OS === 'ios' ? 5 : 0,
+    marginTop: 2,
   },
-  tabBarIcon: {
-    marginTop: 3,
+  iconWrapper: {
+    padding: 8,
+    borderRadius: 12,
+    marginBottom: 2,
   },
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  activeIconWrapper: {
+    backgroundColor: 'rgba(0, 112, 240, 0.1)',
   },
 });

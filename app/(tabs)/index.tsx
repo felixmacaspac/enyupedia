@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 export default function ChatScreen() {
   return (
     <AIProvider>
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container}>
         <Header title="EnyuPedia" showInfo={true} />
         <View style={styles.chatContainer}>
           <ChatUI />

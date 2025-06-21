@@ -52,6 +52,7 @@ export function ChatUI(): React.ReactElement {
   const [usePdf, setUsePdf] = useState<boolean>(true);
   const [showInfo, setShowInfo] = useState<boolean>(false);
   const flatListRef = useRef<FlatList<Message>>(null);
+  const inputRef = useRef<TextInput>(null);
   const inputHeight = useRef(new Animated.Value(48)).current;
   const insets = useSafeAreaInsets();
   const { width } = Dimensions.get('window');
@@ -60,7 +61,11 @@ export function ChatUI(): React.ReactElement {
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
-      scrollToBottom
+      () => {
+        // Ensure input is visible when keyboard appears
+        inputRef.current?.focus();
+        scrollToBottom();
+      }
     );
 
     return () => {
@@ -80,6 +85,13 @@ export function ChatUI(): React.ReactElement {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
     }
+  };
+
+  const handleInputFocus = () => {
+    // Delay scroll to ensure keyboard is fully shown
+    setTimeout(() => {
+      scrollToBottom();
+    }, 300);
   };
 
   const handleSend = async () => {
@@ -203,14 +215,6 @@ export function ChatUI(): React.ReactElement {
         duration={800}
         style={styles.emptyContent}
       >
-        <LinearGradient
-          colors={[Colors.primary, Colors.primaryDark]}
-          style={styles.emptyIcon}
-        >
-          <Bot size={40} color="#fff" />
-        </LinearGradient>
-
-        <Text style={styles.emptyTitle}>EnyuPedia</Text>
         <Text style={styles.emptySubtitle}>
           Your NU Dasmarinas AI Assistant
         </Text>
@@ -219,11 +223,11 @@ export function ChatUI(): React.ReactElement {
           <Text style={styles.tipsTitle}>Try asking about:</Text>
 
           {[
-            'Admission requirements',
-            'Academic calendar',
-            'School policies',
-            'Course offerings',
-            'Campus facilities',
+            'What is the requirements for Deans honor list?',
+            'Who is the founder of National University?',
+            'What is the lyrics of National University Hymn?',
+            'What is the Grading System of National University?',
+            'How do you shift courses in National University?',
           ].map((tip, index) => (
             <TouchableOpacity
               key={index}
@@ -304,15 +308,23 @@ export function ChatUI(): React.ReactElement {
   );
 
   return (
-    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom > 0 ? 0 : 20, // Add padding if no safe area at bottom
+        },
+      ]}
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 30}
       >
-        <View style={styles.header}>
+        {/* <View style={styles.header}>
           <View style={styles.toggleContainer}>
             <Text style={styles.toggleLabel}>Use PDF Knowledge Base</Text>
             <TouchableOpacity
@@ -333,7 +345,7 @@ export function ChatUI(): React.ReactElement {
           >
             <Info size={20} color="#666" />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <FlatList
           ref={flatListRef}
@@ -343,7 +355,7 @@ export function ChatUI(): React.ReactElement {
           style={styles.messageList}
           contentContainerStyle={[
             styles.messageListContent,
-            { paddingBottom: insets.bottom + 80 },
+            { paddingBottom: insets.bottom + 120 }, // Increased padding
           ]}
           ListEmptyComponent={renderEmptyChat}
           onContentSizeChange={scrollToBottom}
@@ -356,6 +368,7 @@ export function ChatUI(): React.ReactElement {
           >
             <Animated.View style={[styles.inputBox, { height: inputHeight }]}>
               <TextInput
+                ref={inputRef}
                 style={styles.input}
                 value={input}
                 onChangeText={handleInputChange}
@@ -363,6 +376,7 @@ export function ChatUI(): React.ReactElement {
                 placeholderTextColor="#999"
                 multiline
                 maxLength={500}
+                onFocus={handleInputFocus}
               />
             </Animated.View>
 
@@ -452,7 +466,6 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
     alignItems: 'flex-start',
   },
   avatarContainer: {
@@ -466,7 +479,6 @@ const styles = StyleSheet.create({
   },
   userAvatarContainer: {
     backgroundColor: Colors.accent,
-    marginLeft: 8,
     marginRight: 0,
   },
   aiAvatarContainer: {
@@ -475,13 +487,14 @@ const styles = StyleSheet.create({
   messageBubble: {
     padding: 14,
     borderRadius: 20,
-    maxWidth: '80%',
+    maxWidth: '60%',
     minWidth: 80,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+    marginBottom: 20,
   },
   userBubble: {
     backgroundColor: '#E9F5FF',
@@ -514,12 +527,11 @@ const styles = StyleSheet.create({
   inputWrapper: {
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.05)',
-    paddingVertical: 12,
     paddingHorizontal: 16,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    position: 'relative',
+    bottom: -32,
+    paddingVertical: 20,
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -536,12 +548,19 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5E5',
     justifyContent: 'center',
     maxHeight: 120,
+    shadowColor: '#000', // Added shadow
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
   },
   input: {
     fontSize: 16,
     color: '#333',
     fontFamily: 'Inter-Regular',
     padding: 0,
+    maxHeight: 100, // Limited max height
+    minHeight: 24, // Added minimum height
   },
   sendButton: {
     backgroundColor: Colors.primary,
@@ -623,7 +642,7 @@ const styles = StyleSheet.create({
   },
   typingIndicator: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 110,
     left: 20,
     backgroundColor: 'rgba(0,0,0,0.6)',
     paddingHorizontal: 12,
@@ -631,6 +650,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    zIndex: 99,
   },
   typingText: {
     color: '#fff',
